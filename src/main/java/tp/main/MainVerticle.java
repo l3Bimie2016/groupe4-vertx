@@ -6,12 +6,10 @@ import io.vertx.core.DeploymentOptions;
 /**
  * Created by Nico on 18/02/2016.
  */
-public class VerticleRunner extends AbstractVerticle{
+public class MainVerticle extends AbstractVerticle{
 
-
-    @Override
-    public void start(){
-
+    public static void main(String[] args) {
+        Vertx vertx = Vertx.vertx();
         vertx.deployVerticle(VerticleFront.class.getCanonicalName());
         vertx.deployVerticle(VerticleService.class.getCanonicalName());
     }
