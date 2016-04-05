@@ -6,6 +6,7 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.sql.ResultSet;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
 import tp.main.model.Board;
@@ -67,6 +68,15 @@ public class VerticleFront extends AbstractVerticle {
            });
         });
 
+        router.get("/public/bdd").handler(x -> {
+           Connector.request("SELECT colA, colB FROM table1", res -> {
+               ResultSet result = new ResultSet();
+
+               result = res.result();
+               x.response().end(Json.encode(result));
+           });
+        });
+
         router.post("/public/query").consumes("application/json").handler(x ->{
             JsonObject queryJson = x.getBodyAsJson();
             Gson gson = new Gson();
@@ -76,14 +86,11 @@ public class VerticleFront extends AbstractVerticle {
             result.setMessage("from vertx front");
             result.setEntity("result board -> " + query.getEntity().getA() * query.getEntity().getB());
             x.response().end(Json.encode(result));
-
         });
 
 
         vertx.createHttpServer()
                 .requestHandler(router::accept)
                 .listen(8090);
-
-
     }
 }
