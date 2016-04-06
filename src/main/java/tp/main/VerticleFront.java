@@ -1,20 +1,15 @@
 package tp.main;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.json.Json;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.sql.ResultSet;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
-import tp.main.model.Board;
-import tp.main.model.ResultMessage;
-import tp.main.model.VertxQuery;
-import tp.main.model.VertxResponse;
-
-import java.lang.reflect.Type;
+import tp.main.queryBuilders.UserQueryBuilder;
+import tp.main.utils.Handlers;
+import tp.main.utils.JsonUtils;
 
 /**
  * Created by Nico on 18/02/2016.
@@ -55,7 +50,7 @@ public class VerticleFront extends AbstractVerticle {
             context.next();
         });
 
-        router.get("/public/hello").handler(x -> {
+        /*router.get("/public/hello").handler(x -> {
            x.response().end(Json.encode("Hello world"));
         });
 
@@ -66,18 +61,34 @@ public class VerticleFront extends AbstractVerticle {
                result.setMessage(r.result().body().toString());
                x.response().end(Json.encode(result));
            });
+        });*/
+
+        router.post("/user").handler(x -> {
+            JsonObject bodyParams = x.getBodyAsJson();
+            JsonArray params = JsonUtils.objectToArray(bodyParams);
+
+            Connector.request(UserQueryBuilder.getInsert(), params, res -> {
+                if (res.succeeded()) {
+                    Handlers.connectUser(bodyParams.getString("login"), connection -> {
+                        x.response().end(Json.encode(connection));
+                    });
+                } else {
+                    x.response().end(Json.encode(false));
+                }
+            });
+        });
+        router.post("/login").handler(x -> {
+            JsonObject bodyParams = x.getBodyAsJson();
+            Handlers.connectUser(
+                bodyParams.getValue("login").toString(),
+                bodyParams.getValue("password").toString(),
+                connection -> {
+                    x.response().end(Json.encode(connection));
+                }
+            );
         });
 
-        router.get("/public/bdd").handler(x -> {
-           Connector.request("SELECT colA, colB FROM table1", res -> {
-               ResultSet result = new ResultSet();
-
-               result = res.result();
-               x.response().end(Json.encode(result));
-           });
-        });
-
-        router.post("/public/query").consumes("application/json").handler(x ->{
+        /*router.post("/public/query").consumes("application/json").handler(x ->{
             JsonObject queryJson = x.getBodyAsJson();
             Gson gson = new Gson();
             Type boardType = new TypeToken<VertxQuery<Board>>(){}.getType();
@@ -86,7 +97,7 @@ public class VerticleFront extends AbstractVerticle {
             result.setMessage("from vertx front");
             result.setEntity("result board -> " + query.getEntity().getA() * query.getEntity().getB());
             x.response().end(Json.encode(result));
-        });
+        });*/
 
 
         vertx.createHttpServer()
