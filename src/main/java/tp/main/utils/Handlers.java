@@ -31,11 +31,6 @@ public abstract class Handlers {
             List<JsonArray> result = res.result().getResults();
 
             if (res.succeeded() || pwd.equals(result.get(0).getString(1))) {
-                /*String token = Token.generate(login);
-                JsonObject jObject = new JsonObject();
-                jObject.put("token", token);
-                jObject.put("user", res.result().toJson());*/
-
                 JsonObject jObject = buildResponse(login, res.result().toJson());
                 handler.handle(Future.succeededFuture(jObject));
             } else {
@@ -49,11 +44,6 @@ public abstract class Handlers {
 
         Connector.request(UserQueryBuilder.getRetrieve(), params, res -> {
             if (res.succeeded()) {
-                /*String token = Token.generate(login);
-                JsonObject jObject = new JsonObject();
-                jObject.put("token", token);
-                jObject.put("user", res.result().toJson());*/
-
                 JsonObject jObject = buildResponse(login, res.result().toJson());
                 handler.handle(Future.succeededFuture(jObject));
             } else {

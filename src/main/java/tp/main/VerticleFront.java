@@ -50,19 +50,6 @@ public class VerticleFront extends AbstractVerticle {
             context.next();
         });
 
-        /*router.get("/public/hello").handler(x -> {
-           x.response().end(Json.encode("Hello world"));
-        });
-
-        router.get("/public/message").handler(x -> {
-           vertx.eventBus().send("MY_EVENT","hello from VerticleFront", r -> {
-               ResultMessage result = new ResultMessage();
-
-               result.setMessage(r.result().body().toString());
-               x.response().end(Json.encode(result));
-           });
-        });*/
-
         router.post("/user").handler(x -> {
             JsonObject bodyParams = x.getBodyAsJson();
             JsonArray params = JsonUtils.objectToArray(bodyParams);
@@ -87,18 +74,6 @@ public class VerticleFront extends AbstractVerticle {
                 }
             );
         });
-
-        /*router.post("/public/query").consumes("application/json").handler(x ->{
-            JsonObject queryJson = x.getBodyAsJson();
-            Gson gson = new Gson();
-            Type boardType = new TypeToken<VertxQuery<Board>>(){}.getType();
-            VertxQuery<Board> query = gson.fromJson(queryJson.encodePrettily(),boardType);
-            VertxResponse result = new VertxResponse();
-            result.setMessage("from vertx front");
-            result.setEntity("result board -> " + query.getEntity().getA() * query.getEntity().getB());
-            x.response().end(Json.encode(result));
-        });*/
-
 
         vertx.createHttpServer()
                 .requestHandler(router::accept)
