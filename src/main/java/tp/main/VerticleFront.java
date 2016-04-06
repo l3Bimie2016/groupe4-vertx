@@ -10,6 +10,7 @@ import io.vertx.ext.web.handler.BodyHandler;
 import tp.main.queryBuilders.UserQueryBuilder;
 import tp.main.utils.Handlers;
 import tp.main.utils.JsonUtils;
+import tp.main.utils.ReqError;
 
 /**
  * Created by Nico on 18/02/2016.
@@ -54,13 +55,23 @@ public class VerticleFront extends AbstractVerticle {
             JsonObject bodyParams = x.getBodyAsJson();
             JsonArray params = JsonUtils.objectToArray(bodyParams);
 
-            Connector.request(UserQueryBuilder.getInsert(), params, res -> {
-                if (res.succeeded()) {
-                    Handlers.connectUser(bodyParams.getString("login"), connection -> {
-                        x.response().end(Json.encode(connection));
-                    });
+            Connector.request(UserQueryBuilder.getRetrieve(), new JsonArray().add(bodyParams.getValue("login")), resExists -> {
+                if(resExists.succeeded()) {
+                    if(resExists.result().getNumRows() <= 0) {
+                        Connector.request(UserQueryBuilder.getInsert(), params, res -> {
+                            if (res.succeeded()) {
+                                Handlers.connectUser(bodyParams.getString("login"), connection -> {
+                                    x.response().end(Json.encode(connection));
+                                });
+                            } else {
+                                x.response().end(ReqError.hurlDbConnexion());
+                            }
+                        });
+                    } else {
+                        x.response().end(ReqError.hurl("L'utilisateur existe déjà"));
+                    }
                 } else {
-                    x.response().end(Json.encode(false));
+                    x.response().end(ReqError.hurlDbConnexion());
                 }
             });
         });
@@ -69,9 +80,7 @@ public class VerticleFront extends AbstractVerticle {
             Handlers.connectUser(
                 bodyParams.getValue("login").toString(),
                 bodyParams.getValue("password").toString(),
-                connection -> {
-                    x.response().end(Json.encode(connection));
-                }
+                connection -> x.response().end(Json.encode(connection.result()))
             );
         });
 
