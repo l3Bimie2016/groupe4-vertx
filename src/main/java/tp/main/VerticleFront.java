@@ -9,6 +9,7 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
 import tp.main.model.User;
 import tp.main.model.VehicleBrand;
+import tp.main.model.VehicleFuel;
 import tp.main.model.VehicleModel;
 import tp.main.queryBuilders.UserQueryBuilder;
 import tp.main.utils.Auth;
@@ -144,6 +145,26 @@ public class VerticleFront extends AbstractVerticle {
                     " WHERE vb.vehicleBrand LIKE ?";
 
             Connector.request(VehicleModel.class, req, params, res -> {
+                if(res.succeeded()) {
+                    //x.response().end(Json.encode(res.result().getRows()));
+                    x.response().end(Json.encode(res.result()));
+                } else {
+                    x.response().end(ReqError.hurl(res.cause().getMessage()));
+                }
+            });
+        });
+        router.get("/api/fuel").handler(x -> {
+            /*Auth.authenticate(x.getBodyAsJson().getValue("token").toString(), z -> {
+                //...
+            });*/
+
+            JsonArray params = new JsonArray().add(x.request().getParam("modele"));
+            String req = "SELECT ft.vehicleFuelName FROM FuelType ft" +
+                    " JOIN  ModelFuel mf ON mf.vehicleFuelID = ft.vehicleFuelID" +
+                    " JOIN VehicleModel vm ON vm.vehicleModelID = mf.vehicleModelID" +
+                    " WHERE vm.vehicleModelName LIKE ?";
+
+            Connector.request(VehicleFuel.class, req, params, res -> {
                 if(res.succeeded()) {
                     //x.response().end(Json.encode(res.result().getRows()));
                     x.response().end(Json.encode(res.result()));
