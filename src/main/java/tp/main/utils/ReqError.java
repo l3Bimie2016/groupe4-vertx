@@ -15,8 +15,4 @@ public abstract class ReqError {
         return Json.encode(res);
     }
 
-    static public String hurlDbConnexion() {
-        return hurl("Erreur de connexion à la BDD");
-    }
-
 }

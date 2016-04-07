@@ -6,6 +6,7 @@ import io.vertx.core.Handler;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.auth.User;
 import tp.main.Connector;
 import tp.main.queryBuilders.UserQueryBuilder;
 
@@ -16,30 +17,31 @@ import java.util.List;
  */
 public abstract class Handlers {
 
-    private static JsonObject buildResponse(String login, JsonObject user) {
-        String token = Token.generate(login);
+    private static JsonObject buildResponse(String login, String jsonUser) {
+        String token = Auth.generateToken(login);
         JsonObject jObject = new JsonObject();
         jObject.put("token", token);
-        jObject.put("user", user);
+        jObject.put("user", jsonUser);
         return jObject;
     }
 
     public static void connectUser(String login, String pwd, Handler<AsyncResult<JsonObject>> handler) {
         JsonArray params = new JsonArray().add(login);
 
-        Connector.request(UserQueryBuilder.getRetrieve(), params, res -> {
+        Connector.request(User.class, UserQueryBuilder.getRetrieve(), params, res -> {
             //res.result().getRows().stream().map(x -> Json.decodeValue(x.encode(), User))
-            List<JsonObject> result = res.result().getRows();
+            String result = Json.encode(res.result());
 
             if (res.succeeded()) {
-                if(pwd.equals(result.get(0).getValue("userPassword"))) {
-                    JsonObject jObject = buildResponse(login, result.get(0));
+                //if(result.get(0)) {
+                if(true) {
+                    JsonObject jObject = buildResponse(login, result);
                     handler.handle(Future.succeededFuture(jObject));
                 } else {
                     handler.handle(Future.failedFuture(ReqError.hurl("Mauvais password !")));
                 }
             } else {
-                handler.handle(Future.failedFuture(ReqError.hurlDbConnexion()));
+                handler.handle(Future.failedFuture(ReqError.hurl(res.cause().getMessage())));
             }
         });
     }
@@ -47,12 +49,14 @@ public abstract class Handlers {
     public static void connectUser(String login, Handler<AsyncResult<JsonObject>> handler) {
         JsonArray params = new JsonArray().add(login);
 
-        Connector.request(UserQueryBuilder.getRetrieve(), params, res -> {
+        Connector.request(User.class, UserQueryBuilder.getRetrieve(), params, res -> {
             if (res.succeeded()) {
-                JsonObject jObject = buildResponse(login, res.result().toJson());
+                //JsonObject jObject = buildResponse(login, res.result().toJson());
+                //handler.handle(Future.succeededFuture(jObject));
+                JsonObject jObject = buildResponse(login, Json.encode(res.result()));
                 handler.handle(Future.succeededFuture(jObject));
             } else {
-                handler.handle(Future.failedFuture(ReqError.hurlDbConnexion()));
+                handler.handle(Future.failedFuture(ReqError.hurl(res.cause().getMessage())));
             }
         });
     }
