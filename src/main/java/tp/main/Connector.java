@@ -39,19 +39,23 @@ public class Connector {
             AsyncSQLClient mySQLClient = Connector.getSQLClient(Vertx.currentContext().owner());
 
             mySQLClient.getConnection(resConnect -> {
-                if(resConnect.succeeded()) {
-                    SQLConnection connection = resConnect.result();
+                try {
+                    if(resConnect.succeeded()) {
+                        SQLConnection connection = resConnect.result();
 
-                    connection.query(req, resQuery -> {
-                        if (resQuery.succeeded()) {
-                            List<T> response = resQuery.result().getRows().stream().map(r -> Json.decodeValue(r.encode(), clazz)).collect(Collectors.toList());
-                            handler.handle(Future.succeededFuture(response));
-                        } else {
-                            handler.handle(Future.failedFuture(resQuery.cause()));
-                        }
-                    });
-                } else {
-                    handler.handle(Future.failedFuture(resConnect.cause()));
+                        connection.query(req, resQuery -> {
+                            if (resQuery.succeeded()) {
+                                List<T> response = resQuery.result().getRows().stream().map(r -> Json.decodeValue(r.encode(), clazz)).collect(Collectors.toList());
+                                handler.handle(Future.succeededFuture(response));
+                            } else {
+                                handler.handle(Future.failedFuture(resQuery.cause()));
+                            }
+                        });
+                    } else {
+                        handler.handle(Future.failedFuture(resConnect.cause()));
+                    }
+                } finally {
+                    mySQLClient.close();
                 }
             });
         });
@@ -62,19 +66,24 @@ public class Connector {
             AsyncSQLClient mySQLClient = Connector.getSQLClient(Vertx.currentContext().owner());
 
             mySQLClient.getConnection(resConnect -> {
-                if(resConnect.succeeded()) {
-                    SQLConnection connection = resConnect.result();
+                try {
 
-                    connection.queryWithParams(req, params, resQuery -> {
-                        if (resQuery.succeeded()) {
-                            List<T> response = resQuery.result().getRows().stream().map(r -> Json.decodeValue(r.encode(), clazz)).collect(Collectors.toList());
-                            handler.handle(Future.succeededFuture(response));
-                        } else {
-                            handler.handle(Future.failedFuture(resQuery.cause()));
-                        }
-                    });
-                } else {
-                    handler.handle(Future.failedFuture(resConnect.cause()));
+                    if(resConnect.succeeded()) {
+                        SQLConnection connection = resConnect.result();
+
+                        connection.queryWithParams(req, params, resQuery -> {
+                            if (resQuery.succeeded()) {
+                                List<T> response = resQuery.result().getRows().stream().map(r -> Json.decodeValue(r.encode(), clazz)).collect(Collectors.toList());
+                                handler.handle(Future.succeededFuture(response));
+                            } else {
+                                handler.handle(Future.failedFuture(resQuery.cause()));
+                            }
+                        });
+                    } else {
+                        handler.handle(Future.failedFuture(resConnect.cause()));
+                    }
+                } finally {
+                    mySQLClient.close();
                 }
             });
         });
