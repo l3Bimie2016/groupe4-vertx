@@ -14,5 +14,4 @@ public class VehicleFuel {
     public void setVehicleFuelName(String vehicleFuelName) {
         this.vehicleFuelName = vehicleFuelName;
     }
-
 }

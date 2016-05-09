@@ -6,8 +6,8 @@ import io.vertx.core.Handler;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.auth.User;
 import tp.main.Connector;
+import tp.main.model.User;
 import tp.main.queryBuilders.UserQueryBuilder;
 
 import java.util.List;

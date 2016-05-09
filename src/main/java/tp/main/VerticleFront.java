@@ -7,10 +7,7 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
-import tp.main.model.User;
-import tp.main.model.VehicleBrand;
-import tp.main.model.VehicleFuel;
-import tp.main.model.VehicleModel;
+import tp.main.model.*;
 import tp.main.queryBuilders.UserQueryBuilder;
 import tp.main.utils.Auth;
 import tp.main.utils.Handlers;
@@ -165,6 +162,26 @@ public class VerticleFront extends AbstractVerticle {
                     " WHERE vm.vehicleModelName LIKE ?";
 
             Connector.request(VehicleFuel.class, req, params, res -> {
+                if(res.succeeded()) {
+                    //x.response().end(Json.encode(res.result().getRows()));
+                    x.response().end(Json.encode(res.result()));
+                } else {
+                    x.response().end(ReqError.hurl(res.cause().getMessage()));
+                }
+            });
+        });
+        router.get("/api/hp").handler(x -> {
+            /*Auth.authenticate(x.getBodyAsJson().getValue("token").toString(), z -> {
+                //...
+            });*/
+
+            JsonArray params = new JsonArray().add(x.request().getParam("modeleId"));
+            String req = "SELECT vhp.vehicleHPNb FROM VehicleHP AS vhp\n" +
+                    "JOIN ModelHP AS mhp\n" +
+                    "WHERE mhp.vehicleHPID = ?\n" +
+                    "AND vhp.vehicleHPID = mhp.vehicleHPID";
+
+            Connector.request(VehicleHP.class, req, params, res -> {
                 if(res.succeeded()) {
                     //x.response().end(Json.encode(res.result().getRows()));
                     x.response().end(Json.encode(res.result()));

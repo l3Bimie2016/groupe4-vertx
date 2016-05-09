@@ -13,10 +13,6 @@ public class User {
     private Integer userCP;
     private String userCity;
 
-    public Boolean checkPassword(String pass) {
-        return this.userPassword.equals(pass);
-    }
-
     public String getUserLogin() {
         return userLogin;
     }
