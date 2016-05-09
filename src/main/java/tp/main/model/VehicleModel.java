@@ -5,6 +5,7 @@ package tp.main.model;
  */
 public class VehicleModel {
 
+    private Integer vehicleModelID;
     private String vehicleModelName;
 
     public String getVehicleModelName() {
@@ -13,5 +14,13 @@ public class VehicleModel {
 
     public void setVehicleModelName(String vehicleModelName) {
         this.vehicleModelName = vehicleModelName;
+    }
+
+    public Integer getVehicleModelID() {
+        return vehicleModelID;
+    }
+
+    public void setVehicleModelID(Integer vehicleModelID) {
+        this.vehicleModelID = vehicleModelID;
     }
 }

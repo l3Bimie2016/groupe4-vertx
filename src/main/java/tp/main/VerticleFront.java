@@ -137,7 +137,7 @@ public class VerticleFront extends AbstractVerticle {
             });*/
 
             JsonArray params = new JsonArray().add(x.request().getParam("marque"));
-            String req = "SELECT vm.vehicleModelName FROM VehicleModel vm" +
+            String req = "SELECT vm.vehicleModelName, vm.vehicleModelID FROM VehicleModel vm" +
                     " JOIN  VehicleBrand vb ON vb.vehicleBrandID = vm.vehicleBrandID" +
                     " WHERE vb.vehicleBrand LIKE ?";
 
@@ -178,10 +178,27 @@ public class VerticleFront extends AbstractVerticle {
             JsonArray params = new JsonArray().add(x.request().getParam("modeleId"));
             String req = "SELECT vhp.vehicleHPNb FROM VehicleHP AS vhp\n" +
                     "JOIN ModelHP AS mhp\n" +
-                    "WHERE mhp.vehicleHPID = ?\n" +
+                    "WHERE mhp.vehicleModelID = ?\n" +
                     "AND vhp.vehicleHPID = mhp.vehicleHPID";
 
             Connector.request(VehicleHP.class, req, params, res -> {
+                if(res.succeeded()) {
+                    //x.response().end(Json.encode(res.result().getRows()));
+                    x.response().end(Json.encode(res.result()));
+                } else {
+                    x.response().end(ReqError.hurl(res.cause().getMessage()));
+                }
+            });
+        });
+
+        router.get("/api/homeType").handler(x -> {
+            /*Auth.authenticate(x.getBodyAsJson().getValue("token").toString(), z -> {
+                //...
+            });*/
+
+            String req = "SELECT homeTypeName FROM HomeType";
+
+            Connector.request(HomeType.class, req, res -> {
                 if(res.succeeded()) {
                     //x.response().end(Json.encode(res.result().getRows()));
                     x.response().end(Json.encode(res.result()));
