@@ -8,7 +8,7 @@ public abstract class UserQueryBuilder {
     static private String insert = "INSERT INTO User (userLogin, userPassword, userFirstName, userLastName, userAddress, userCP, userCity)" +
             " VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-    static private String retrieve = "SELECT userLogin, userPassword, userFirstName, userLastName, userAddress, userCP, userCity FROM User WHERE userLogin LIKE ?";
+    static private String retrieve = "SELECT userLogin, userPassword, userFirstName, userLastName, userAddress, userCP, userCity FROM User WHERE userLogin LIKE ? AND userPassword LIKE ?";
 
     static public String getRetrieve() {
         return retrieve;

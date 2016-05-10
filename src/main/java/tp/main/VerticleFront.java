@@ -2,6 +2,7 @@ package tp.main;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.http.HttpHeaders;
+import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -111,7 +112,13 @@ public class VerticleFront extends AbstractVerticle {
             Handlers.connectUser(
                 bodyParams.getValue("login").toString(),
                 bodyParams.getValue("password").toString(),
-                connection -> x.response().end(Json.encode(connection.result()))
+                connection -> {
+                    if(connection.succeeded()) {
+                        x.response().end(Json.encode(connection.result()));
+                    } else {
+                        x.response().end(connection.cause().getMessage());
+                    }
+                }
             );
         });
 
